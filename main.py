@@ -49,5 +49,5 @@ for ch in chs:
                     img.save(os.path.join('MangaDownloads', manga_name, c['number'], f"%03d.jpg" % page_number), quality=80, dpi=(72, 72), icc_profile=icc)
                     page_number = page_number + 1
                 else:
-                    print(f'falha ao baixar pagina {page_number}')
+                    print(f'falha ao baixar pagina {page_number} do cap {c["number"]}')
                     page_number = page_number + 1
