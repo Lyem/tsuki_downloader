@@ -3,18 +3,23 @@ from PIL import Image
 import os
 import re
 from colors import bcolors
+from colorama import init
+from termcolor import cprint
+init()
 
 Image.MAX_IMAGE_PIXELS = 933120000
 
-id_manga = input(f"{bcolors.OKBLUE}Digite o id do manga: {bcolors.END}")
+cprint(f"{bcolors.OKBLUE}Digite o id do manga: {bcolors.END}")
+id_manga = input()
 
 chapters = requests.get(f'https://tsukimangas.com/api/v2/chapters/{id_manga}/all').json()
 
 for ch in chapters:
     print(ch['number'])
-
-chs_selects = input(f'Selecione os caps \n{bcolors.BOLD}EXEMPLO: 1,2,3...{bcolors.END} \nou \n{bcolors.BOLD}EXEMPLO: 1-10{bcolors.END} \n:')
-vol = str(input(f'{bcolors.OKBLUE}Qual é o volume? (se não tiver é só apertar enter):{bcolors.END} ') or '')
+cprint(f'Selecione os caps \n{bcolors.BOLD}EXEMPLO: 1,2,3...{bcolors.END} \nou \n{bcolors.BOLD}EXEMPLO: 1-10{bcolors.END}')
+chs_selects = input()
+cprint(f'{bcolors.OKBLUE}Qual é o volume? (se não tiver é só apertar enter):{bcolors.END} ')
+vol = str(input() or '')
 if(vol != ''):
     vol = f' (v{vol})'
 chs = chs_selects.split(',')
@@ -41,7 +46,8 @@ for ch in chs:
 
             version = 1
             if len(c['versions']) > 1:
-                version = int(input(f'{bcolors.OKBLUE}Selecione a versão: {bcolors.OKBLUE}'))
+                cprint(f'{bcolors.OKBLUE}Selecione a versão: {bcolors.OKBLUE}')
+                version = int(input())
 
             version_id = c['versions'][version-1]['scans'][0]['chapter_version_id']
 
@@ -63,7 +69,7 @@ for ch in chs:
             if(bool(re.search("^0{1}\d", ch))):
                 ch = re.sub('0','',ch)
 
-            print(f'{bcolors.WARNING}baixando cap {ch}{bcolors.END}')
+            cprint(f'{bcolors.WARNING}baixando cap {ch}{bcolors.END}')
             if not os.path.isdir(os.path.join('MangaDownloads', manga_name, f'{manga_name} [pt-br] - c{ch}{vol}{ch_title} [{groups}]')):
                 os.makedirs(os.path.join('MangaDownloads', manga_name, f'{manga_name} [pt-br] - c{ch}{vol}{ch_title} [{groups}]'))
 
@@ -76,8 +82,8 @@ for ch in chs:
                     icc = img.info.get('icc_profile')
                     if img.mode in ("RGBA", "P"): img = img.convert("RGB")
                     img.save(os.path.join('MangaDownloads', manga_name, f'{manga_name} [pt-br] - c{ch}{vol}{ch_title} [{groups}]', f"%03d.jpg" % page_number), quality=80, dpi=(72, 72), icc_profile=icc)
-                    print(f'{bcolors.OK}pagina {page_number} baixada com sucesso{bcolors.END}')
+                    cprint(f'{bcolors.OK}pagina {page_number} baixada com sucesso{bcolors.END}')
                     page_number = page_number + 1
                 else:
-                    print(f'{bcolors.FAIL}falha ao baixar pagina {page_number} do cap {c["number"]}{bcolors.END}')
+                    cprint(f'{bcolors.FAIL}falha ao baixar pagina {page_number} do cap {c["number"]}{bcolors.END}')
                     page_number = page_number + 1
