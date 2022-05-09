@@ -10,9 +10,19 @@ chapters = requests.get(f'https://tsukimangas.com/api/v2/chapters/{id_manga}/all
 for ch in chapters:
     print(ch['number'])
 
-chs_selects = input('Selecione os caps separando com virgula \nEXEMPLO: 1,2,3... \n:')
+chs_selects = input('Selecione os caps \nEXEMPLO: 1,2,3... \nou \nEXEMPLO: 1-10 \n:')
 
 chs = chs_selects.split(',')
+if len(chs) == 1:
+    chs = chs_selects.split('-')
+    if len(chs) > 1:
+        chs = sorted(chs)
+        nmin = chs[0]
+        nmax = chs[1]
+        chs = []
+        for ch in chapters:
+            if float(ch['number']) >= float(nmin) and float(ch['number']) <= float(nmax):
+                chs.append(ch['number'])
 
 for ch in chs:
     for c in chapters:
