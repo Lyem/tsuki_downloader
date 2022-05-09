@@ -10,7 +10,7 @@ chapters = requests.get(f'https://tsukimangas.com/api/v2/chapters/{id_manga}/all
 for ch in chapters:
     print(ch['number'])
 
-chs_selects = input('Selecione os caps separanco com virgula \nEXEMPLO: 1,2,3... \n:')
+chs_selects = input('Selecione os caps separando com virgula \nEXEMPLO: 1,2,3... \n:')
 
 chs = chs_selects.split(',')
 
