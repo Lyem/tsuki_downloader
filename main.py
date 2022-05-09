@@ -20,10 +20,13 @@ for ch in chs:
             n = 1
             for version in c['versions']:
                 for scan in version['scans']:
-                    print(f"{n} - {scan['scan']['name']}")
+                    if len(c['versions']) > 1:
+                        print(f"{n} - {scan['scan']['name']}")
                 n = n + 1
 
-            version = int(input('Selecione a versão: '))
+            version = 1
+            if len(c['versions']) > 1:
+                version = int(input('Selecione a versão: '))
 
             version_id = c['versions'][version-1]['scans'][0]['chapter_version_id']
 
