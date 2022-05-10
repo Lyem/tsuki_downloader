@@ -43,7 +43,7 @@ for ch in chs:
                 for scan in version['scans']:
                     if len(c['versions']) > 1:
                         print(f"{n} - {scan['scan']['name']}")
-                n = n + 1
+                n += 1
 
             version = 1
             if len(c['versions']) > 1:
@@ -54,7 +54,8 @@ for ch in chs:
 
             pages = requests.get(f'https://tsukimangas.com/api/v2/chapter/versions/{version_id}').json()
 
-            manga_name = pages['chapter']['manga']['title']
+            manga_name = (pages['chapter']['manga']['title'][:18] + '..') if len(pages['chapter']['manga']['title']) > 20 else pages['chapter']['manga']['title']
+            manga_name = re.sub('[^a-zA-Z0-9&_áàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ\s\.-]','', manga_name)
             ch_title = ''
             if(pages['chapter']['title']): 
                 ch_title = " ({0})".format(re.sub('[^a-zA-Z0-9&_áàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ\s\.-]','', pages['chapter']['title']))
@@ -99,12 +100,12 @@ for ch in chs:
                             top += 5000
                             img_slice.save(os.path.join('MangaDownloads', manga_name, f'{manga_name} [pt-br] - c{ch}{vol}{ch_title} [{groups}]', f"%03d.jpg" % page_number), quality=80, dpi=(72, 72), icc_profile=icc)
                             cprint(f'{bcolors.OK}pagina {page_number} baixada com sucesso{bcolors.END}')
-                            count +=1
-                            page_number = page_number + 1
+                            count += 1
+                            page_number += 1
                     else:
                         img.save(os.path.join('MangaDownloads', manga_name, f'{manga_name} [pt-br] - c{ch}{vol}{ch_title} [{groups}]', f"%03d.jpg" % page_number), quality=80, dpi=(72, 72), icc_profile=icc)
                         cprint(f'{bcolors.OK}pagina {page_number} baixada com sucesso{bcolors.END}')
-                        page_number = page_number + 1
+                        page_number += 1
                 else:
                     cprint(f'{bcolors.FAIL}falha ao baixar pagina {page_number} do cap {c["number"]}{bcolors.END}')
-                    page_number = page_number + 1
+                    page_number += 1
