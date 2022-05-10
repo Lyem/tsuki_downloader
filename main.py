@@ -54,8 +54,8 @@ for ch in chs:
 
             pages = requests.get(f'https://tsukimangas.com/api/v2/chapter/versions/{version_id}').json()
 
-            manga_name = (pages['chapter']['manga']['title'][:18] + '..') if len(pages['chapter']['manga']['title']) > 20 else pages['chapter']['manga']['title']
-            manga_name = re.sub('[^a-zA-Z0-9&_áàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ\s\.-]','', manga_name)
+            manga_name = (pages['chapter']['manga']['title'][:20]) if len(pages['chapter']['manga']['title']) > 20 else pages['chapter']['manga']['title']
+            manga_name = re.sub('[^a-zA-Z0-9&_áàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ\s-]','', manga_name)
             ch_title = ''
             if(pages['chapter']['title']): 
                 ch_title = " ({0})".format(re.sub('[^a-zA-Z0-9&_áàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ\s\.-]','', pages['chapter']['title']))
