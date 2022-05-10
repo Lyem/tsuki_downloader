@@ -50,7 +50,7 @@ for ch in chs:
                 cprint(f'{bcolors.OKBLUE}Selecione a versão: {bcolors.OKBLUE}')
                 version = int(input())
 
-            version_id = c['versions'][version-1]['scans'][0]['chapter_version_id']
+            version_id = c['versions'][version-1]['id']
 
             pages = requests.get(f'https://tsukimangas.com/api/v2/chapter/versions/{version_id}').json()
 
@@ -62,10 +62,11 @@ for ch in chs:
             pages = pages['pages']
             ch = c['number']
             g = []
-            for scan in c['versions'][version-1]['scans']:
-                g.append(re.sub(' ', '', scan['scan']['name']))
-                g.append('+')
-            g.pop()
+            if(len(c['versions'][version-1]['scans']) > 0):
+                for scan in c['versions'][version-1]['scans']:
+                    g.append(re.sub(' ', '', scan['scan']['name']))
+                    g.append('+')
+                g.pop()
             groups = "".join(g)
 
             if(bool(re.search("^0{1}\d", ch))):
