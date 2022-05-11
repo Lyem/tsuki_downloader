@@ -27,7 +27,6 @@ chs = chs_selects.split(',')
 if len(chs) == 1:
     chs = chs_selects.split('-')
     if len(chs) > 1:
-        chs = sorted(chs)
         nmin = chs[0]
         nmax = chs[1]
         chs = []
