@@ -13,7 +13,7 @@ Image.MAX_IMAGE_PIXELS = 933120000
 cprint(f"{bcolors.OKBLUE}Digite o id do manga: {bcolors.END}")
 id_manga = input()
 
-chapters = requests.get(f'https://tsukimangas.com/api/v2/chapters/{id_manga}/all').json()
+chapters = requests.get(f'https://tsukimangas.net/api/v2/chapters/{id_manga}/all').json()
 
 for ch in chapters:
     print(ch['number'])
@@ -51,7 +51,7 @@ for ch in chs:
 
             version_id = c['versions'][version-1]['id']
 
-            pages = requests.get(f'https://tsukimangas.com/api/v2/chapter/versions/{version_id}').json()
+            pages = requests.get(f'https://tsukimangas.net/api/v2/chapter/versions/{version_id}').json()
 
             manga_name = (pages['chapter']['manga']['title'][:20]) if len(pages['chapter']['manga']['title']) > 20 else pages['chapter']['manga']['title']
             manga_name = re.sub('[^a-zA-Z0-9&_áàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ-]','', manga_name)
@@ -77,7 +77,7 @@ for ch in chs:
 
             page_number = 1
             for page in pages:
-                r = requests.get(f"https://cdn{page['server']}.tsukimangas.com/{page['url']}", stream=True)
+                r = requests.get(f"https://tsukimangas.net/img{page['url']}", stream=True)
                 if r.status_code == 200:
                     r.raw.decode_content = True
                     img = Image.open(r.raw)

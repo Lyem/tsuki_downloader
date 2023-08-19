@@ -1,0 +1,87 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    name: Build app
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - os: ubuntu-22.04
+          - os: macos-latest
+          - os: windows-2019
+    steps:
+      - name: Install dependencies on ubuntu
+        if: ${{ matrix.config.os == 'ubuntu-22.04'}}
+        run: |
+          sudo apt-get update
+          sudo apt install python3-dev python3-setuptools tcl
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11.0'
+
+      - name: Install dependencies for ${{ matrix.config.os }}
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Set pythonpath
+        run: |
+          echo "PYTHONPATH={path}/src" >> $GITHUB_ENV
+
+      - name: Build with pyinstaller for ${{ matrix.config.os }}
+        run: pyinstaller --onefile ./main.py
+
+      - name: Rename builded app
+        run: mv ./dist ./dist-${{ matrix.config.os }}
+
+      - name: Upload result job ${{ matrix.config.os }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: tsukidownloader-pyinstaller-artifact
+          path: ./dist*
+
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: tsukidownloader-pyinstaller-artifact
+
+      - name: Zip file windows
+        run: zip -r helper_windows.zip dist-windows-*
+
+      - name: Zip file ubuntu
+        run: zip -r helper_ubuntu.zip dist-ubuntu-*
+
+      - name: Zip file macos
+        run: zip -r helper_macos.zip dist-macos-*
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          draft: false
+          prerelease: false
+          files: |
+            helper_windows.zip
+            helper_ubuntu.zip
+            helper_macos.zip
