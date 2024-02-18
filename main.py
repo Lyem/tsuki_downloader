@@ -18,12 +18,12 @@ cdn = 'https://cdn.tsuki-mangas.com/tsuki'
 
 headers = {'referer': f'{base}'}
 
-data = requests.get(f'https://tsuki-mangas.com/api/v2/chapters?manga_id={id_manga}', headers=headers).json()
+data = requests.get(f'https://tsuki-mangas.com/api/v3/chapters?manga_id={id_manga}', headers=headers).json()
 
 chapters = []
 
 for i in range(int(data['lastPage'])):
-    r = requests.get(f'{base}/api/v2/chapters?manga_id={id_manga}&order=desc&page={i + 1}', headers=headers).json()
+    r = requests.get(f'{base}/api/v3/chapters?manga_id={id_manga}&order=desc&page={i + 1}', headers=headers).json()
     chapters.extend(r['data'])
 
 for ch in chapters:
@@ -62,7 +62,7 @@ for ch in chs:
 
             version_id = c['versions'][version-1]['id']
 
-            pages = requests.get(f'{base}/api/v2/chapter/versions/{version_id}', headers=headers).json()
+            pages = requests.get(f'{base}/api/v3/chapter/versions/{version_id}', headers=headers).json()
 
             manga_name = (pages['chapter']['manga']['title'][:20]) if len(pages['chapter']['manga']['title']) > 20 else pages['chapter']['manga']['title']
             manga_name = re.sub('[^a-zA-Z0-9&_áàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ-]','', manga_name)
