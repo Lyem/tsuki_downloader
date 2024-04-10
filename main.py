@@ -14,7 +14,7 @@ cprint(f"{bcolors.OKBLUE}Digite o id do manga: {bcolors.END}")
 id_manga = input()
 
 base = 'https://tsuki-mangas.com'
-cdn = 'https://cdn.tsuki-mangas.com/tsuki'
+cdn = 'https://cdn2.tsuki-mangas.com/'
 
 headers = {'referer': f'{base}', 'user-agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/534.17 (KHTML, like Gecko) Chrome/52.0.1425.307 Safari/533'}
 
