@@ -14,7 +14,7 @@ cprint(f"{bcolors.OKBLUE}Digite o id do manga: {bcolors.END}")
 id_manga = input()
 
 base = 'https://tsuki-mangas.com'
-cdn = 'https://cdn.tsuki-mangas.com/tsuki'
+cdns = ['https://cdn.tsuki-mangas.com/tsuki','https://cdn2.tsuki-mangas.com']
 
 headers = {'referer': f'{base}', 'user-agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/534.17 (KHTML, like Gecko) Chrome/52.0.1425.307 Safari/533'}
 
@@ -89,39 +89,42 @@ for ch in chs:
             page_number = 1
             for page in pages:
                 try:
-                    r = requests.get(f"{cdn}{page['url']}", stream=True, headers=headers)
-                    if r.status_code == 200:
-                        r.raw.decode_content = True
-                        img = Image.open(r.raw)
-                        icc = img.info.get('icc_profile')
-                        if img.mode in ("RGBA", "P"): img = img.convert("RGB")
-                        width, height = img.size
-                        if(height > 10000):
-                            top = 0
-                            left = 0
-                            slices = int(math.ceil(height/5000))
-                            count = 1
-                            for slice in range(slices):
-                                if count == slices:
-                                    bottom = height
-                                else:
-                                    bottom = int(count * 5000)  
+                    for index, cdn in enumerate(cdns):
+                        r = requests.get(f"{cdn}{page['url']}", stream=True, headers=headers)
+                        if r.status_code == 200:
+                            r.raw.decode_content = True
+                            img = Image.open(r.raw)
+                            icc = img.info.get('icc_profile')
+                            if img.mode in ("RGBA", "P"): img = img.convert("RGB")
+                            width, height = img.size
+                            if(height > 10000):
+                                top = 0
+                                left = 0
+                                slices = int(math.ceil(height/5000))
+                                count = 1
+                                for slice in range(slices):
+                                    if count == slices:
+                                        bottom = height
+                                    else:
+                                        bottom = int(count * 5000)  
 
-                                box = (left, top, width, bottom)
-                                img_slice = img.crop(box)
-                                top += 5000
-                                img_slice.save(os.path.join('MangaDownloads', manga_name, f'{manga_name} [pt-br] - c{ch}{vol}{ch_title} [{groups}]', f"%03d.jpg" % page_number), quality=80, dpi=(72, 72), icc_profile=icc)
+                                    box = (left, top, width, bottom)
+                                    img_slice = img.crop(box)
+                                    top += 5000
+                                    img_slice.save(os.path.join('MangaDownloads', manga_name, f'{manga_name} [pt-br] - c{ch}{vol}{ch_title} [{groups}]', f"%03d.jpg" % page_number), quality=80, dpi=(72, 72), icc_profile=icc)
+                                    cprint(f'{bcolors.OK}pagina {page_number} baixada com sucesso{bcolors.END}')
+                                    count += 1
+                                    page_number += 1
+                            else:
+                                img.save(os.path.join('MangaDownloads', manga_name, f'{manga_name} [pt-br] - c{ch}{vol}{ch_title} [{groups}]', f"%03d.jpg" % page_number), quality=80, dpi=(72, 72), icc_profile=icc)
                                 cprint(f'{bcolors.OK}pagina {page_number} baixada com sucesso{bcolors.END}')
-                                count += 1
                                 page_number += 1
+                            break
                         else:
-                            img.save(os.path.join('MangaDownloads', manga_name, f'{manga_name} [pt-br] - c{ch}{vol}{ch_title} [{groups}]', f"%03d.jpg" % page_number), quality=80, dpi=(72, 72), icc_profile=icc)
-                            cprint(f'{bcolors.OK}pagina {page_number} baixada com sucesso{bcolors.END}')
-                            page_number += 1
-                    else:
-                        cprint(f'{bcolors.FAIL}falha ao baixar pagina {page_number} do cap {c["number"]}{bcolors.END}')
-                        print(f"{cdn}{page['url']}")
-                        page_number += 1
+                            if len(cdns) == index + 1:
+                                cprint(f'{bcolors.FAIL}falha ao baixar pagina {page_number} do cap {c["number"]}{bcolors.END}')
+                                print(f"{cdn}{page['url']}")
+                                page_number += 1
                 except Exception as e:
                     cprint(f'{bcolors.FAIL}falha ao baixar pagina {page_number} do cap {c["number"]}{bcolors.END}')
                     print(f"{cdn}{page['url']}")
