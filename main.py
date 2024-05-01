@@ -6,7 +6,9 @@ from colors import bcolors
 from colorama import init
 from termcolor import cprint
 import math
+from fake_useragent import UserAgent
 init()
+ua = UserAgent()
 
 Image.MAX_IMAGE_PIXELS = 933120000
 
@@ -16,7 +18,7 @@ id_manga = input()
 base = 'https://tsuki-mangas.com'
 cdns = ['https://cdn.tsuki-mangas.com/tsuki','https://cdn2.tsuki-mangas.com']
 
-headers = {'referer': f'{base}', 'user-agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/534.17 (KHTML, like Gecko) Chrome/52.0.1425.307 Safari/533'}
+headers = {'referer': f'{base}', 'user-agent': ua.random}
 
 data = requests.get(f'https://tsuki-mangas.com/api/v3/chapters?manga_id={id_manga}', headers=headers).json()
 
