@@ -37,9 +37,8 @@ def download_pages(chapters, ch, vol):
         if float(ch) == float(c['number']):
             n = 1
             for version in c['versions']:
-                for scan in version['scans']:
-                    if len(c['versions']) > 1:
-                        print(f"{n} - {scan['scan']['name']}")
+                if len(c['versions']) > 1:
+                    print(f"{n} - Não tem como saber a scan kk")
                 n += 1
 
             version = 1
