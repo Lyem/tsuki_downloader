@@ -143,7 +143,7 @@ if __name__ == "__main__":
             for ch in chapters:
                 if float(ch['number']) >= float(nmin) and float(ch['number']) <= float(nmax):
                     chs.append(ch['number'])
+            chs.reverse()
 
-    chs.reverse()
     for ch in chs:
         download_pages(chapters, ch, vol)
