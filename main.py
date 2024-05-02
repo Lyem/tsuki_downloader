@@ -140,9 +140,9 @@ for ch in chs:
                         else:
                             if len(cdns) == index + 1:
                                 cprint(f'{bcolors.FAIL}falha ao baixar pagina {page_number} do cap {c["number"]}{bcolors.END}')
-                                logger.info(f"falha ao baixar pagina {page_number} do cap {c["number"]}{bcolors.END} - {cdn}{page['url']}")
+                                logger.info(f"falha ao baixar pagina {page_number} do cap {c['number']}{bcolors.END} - {cdn}{page['url']}")
                                 page_number += 1
                 except Exception as e:
                     cprint(f'{bcolors.FAIL}falha ao baixar pagina {page_number} do cap {c["number"]}{bcolors.END}')
-                    logger.info(f"falha ao baixar pagina {page_number} do cap {c["number"]}{bcolors.END} - {cdn}{page['url']}")
+                    logger.info(f"falha ao baixar pagina {page_number} do cap {c['number']}{bcolors.END} - {cdn}{page['url']}")
                     page_number += 1
