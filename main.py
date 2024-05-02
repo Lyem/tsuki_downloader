@@ -35,7 +35,7 @@ r = requests.session()
 retries = Retry(total=5, backoff_factor=1, status_forcelist=[ 502, 503, 504 ])
 r.mount('https://', HTTPAdapter(max_retries=retries))
 
-data = r.get(f'https://tsuki-mangas.com/api/v3/chapters?manga_id={id_manga}', headers=headers).json()
+data = r.get(f'{base}/api/v3/chapters?manga_id={id_manga}', headers=headers).json()
 
 chapters = []
 
