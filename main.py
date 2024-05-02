@@ -33,7 +33,7 @@ headers = {'referer': f'{base}', 'user-agent': ua.random}
 
 r = requests.session()
 retries = Retry(total=5, backoff_factor=1, status_forcelist=[ 502, 503, 504 ])
-r.mount('http://', HTTPAdapter(max_retries=retries))
+r.mount('https://', HTTPAdapter(max_retries=retries))
 
 data = r.get(f'https://tsuki-mangas.com/api/v3/chapters?manga_id={id_manga}', headers=headers).json()
 
