@@ -151,5 +151,6 @@ if __name__ == "__main__":
                 if float(ch['number']) >= float(nmin) and float(ch['number']) <= float(nmax):
                     chs.append(ch['number'])
 
+    chs.reverse()
     for ch in chs:
         download_pages(chapters, ch, vol)
