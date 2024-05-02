@@ -24,7 +24,7 @@ Image.MAX_IMAGE_PIXELS = 933120000
 
 # Configuração requests
 r = requests.session()
-retries = Retry(total=5, backoff_factor=1, status_forcelist=[502, 503, 504])
+retries = Retry(total=5, backoff_factor=1, status_forcelist=[404])
 r.mount('https://', HTTPAdapter(max_retries=retries))
 base = 'https://tsuki-mangas.com'
 cdns = ['https://cdn.tsuki-mangas.com/tsuki','https://cdn2.tsuki-mangas.com']
