@@ -7,6 +7,17 @@ from colorama import init
 from termcolor import cprint
 import math
 from fake_useragent import UserAgent
+from requests.adapters import HTTPAdapter, Retry
+import logging
+import logging.handlers as handlers
+
+logger = logging.getLogger('app')
+logger.setLevel(logging.INFO)
+
+logHandler = handlers.RotatingFileHandler('app.log', maxBytes=500, backupCount=2)
+logHandler.setLevel(logging.INFO)
+logger.addHandler(logHandler)
+
 init()
 ua = UserAgent()
 
@@ -20,13 +31,17 @@ cdns = ['https://cdn.tsuki-mangas.com/tsuki','https://cdn2.tsuki-mangas.com']
 
 headers = {'referer': f'{base}', 'user-agent': ua.random}
 
-data = requests.get(f'https://tsuki-mangas.com/api/v3/chapters?manga_id={id_manga}', headers=headers).json()
+r = requests.session()
+retries = Retry(total=5, backoff_factor=1, status_forcelist=[ 502, 503, 504 ])
+r.mount('http://', HTTPAdapter(max_retries=retries))
+
+data = r.get(f'https://tsuki-mangas.com/api/v3/chapters?manga_id={id_manga}', headers=headers).json()
 
 chapters = []
 
 for i in range(int(data['lastPage'])):
-    r = requests.get(f'{base}/api/v3/chapters?manga_id={id_manga}&order=desc&page={i + 1}', headers=headers).json()
-    chapters.extend(r['data'])
+    response = r.get(f'{base}/api/v3/chapters?manga_id={id_manga}&order=desc&page={i + 1}', headers=headers).json()
+    chapters.extend(response['data'])
 
 for ch in chapters:
     print(ch['number'])
@@ -64,7 +79,7 @@ for ch in chs:
 
             version_id = c['versions'][version-1]['id']
 
-            pages = requests.get(f'{base}/api/v3/chapter/versions/{version_id}', headers=headers).json()
+            pages = r.get(f'{base}/api/v3/chapter/versions/{version_id}', headers=headers).json()
 
             manga_name = (pages['chapter']['manga']['title'][:20]) if len(pages['chapter']['manga']['title']) > 20 else pages['chapter']['manga']['title']
             manga_name = re.sub('[^a-zA-Z0-9&_áàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ-]','', manga_name)
@@ -92,10 +107,10 @@ for ch in chs:
             for page in pages:
                 try:
                     for index, cdn in enumerate(cdns):
-                        r = requests.get(f"{cdn}{page['url']}", stream=True, headers=headers)
-                        if r.status_code == 200:
-                            r.raw.decode_content = True
-                            img = Image.open(r.raw)
+                        response = r.get(f"{cdn}{page['url']}", stream=True, headers=headers)
+                        if response.status_code == 200:
+                            response.raw.decode_content = True
+                            img = Image.open(response.raw)
                             icc = img.info.get('icc_profile')
                             if img.mode in ("RGBA", "P"): img = img.convert("RGB")
                             width, height = img.size
@@ -125,9 +140,9 @@ for ch in chs:
                         else:
                             if len(cdns) == index + 1:
                                 cprint(f'{bcolors.FAIL}falha ao baixar pagina {page_number} do cap {c["number"]}{bcolors.END}')
-                                print(f"{cdn}{page['url']}")
+                                logger.info(f"falha ao baixar pagina {page_number} do cap {c["number"]}{bcolors.END} - {cdn}{page['url']}")
                                 page_number += 1
                 except Exception as e:
                     cprint(f'{bcolors.FAIL}falha ao baixar pagina {page_number} do cap {c["number"]}{bcolors.END}')
-                    print(f"{cdn}{page['url']}")
+                    logger.info(f"falha ao baixar pagina {page_number} do cap {c["number"]}{bcolors.END} - {cdn}{page['url']}")
                     page_number += 1
