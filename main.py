@@ -57,13 +57,7 @@ def download_pages(chapters, ch, vol):
                 ch_title = " ({0})".format(re.sub('[^a-zA-Z0-9&_áàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ\s\.-]', '', pages['chapter']['title']))
             pages = pages['pages']
             ch = c['number']
-            g = []
-            if(len(c['versions'][version - 1]['scans']) > 0):
-                for scan in c['versions'][version - 1]['scans']:
-                    g.append(re.sub(' ', '', scan['scan']['name']))
-                    g.append('+')
-                g.pop()
-            groups = "".join(g)
+            groups = f"v{version}"
 
             if(bool(re.search("^0{1}\d", ch))):
                 ch = re.sub('0', '', ch)
