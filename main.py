@@ -24,7 +24,7 @@ Image.MAX_IMAGE_PIXELS = 933120000
 
 # Configuração requests
 r = requests.session()
-retries = Retry(total=5, backoff_factor=1, status_forcelist=[404])
+retries = Retry(total=5, backoff_factor=1)
 r.mount('https://', HTTPAdapter(max_retries=retries))
 base = 'https://tsuki-mangas.com'
 cdns = ['https://cdn.tsuki-mangas.com/tsuki','https://cdn2.tsuki-mangas.com']
@@ -103,11 +103,11 @@ def download_pages(chapters, ch, vol):
                         else:
                             if len(cdns) == index + 1:
                                 cprint(f'{bcolors.FAIL}falha ao baixar pagina {page_number} do cap {c["number"]}{bcolors.END}')
-                                logger.info(f"falha ao baixar pagina {page_number} do cap {c['number']}{bcolors.END} - {cdn}{page['url']}")
+                                logger.info(f"falha ao baixar pagina {page_number} do cap {c['number']} - {cdn}{page['url']}")
                                 page_number += 1
                 except Exception as e:
                     cprint(f'{bcolors.FAIL}falha ao baixar pagina {page_number} do cap {c["number"]}{bcolors.END}')
-                    logger.info(f"falha ao baixar pagina {page_number} do cap {c['number']}{bcolors.END} - {cdn}{page['url']}")
+                    logger.info(f"falha ao baixar pagina {page_number} do cap {c['number']} - {cdn}{page['url']}")
                     page_number += 1
 
 # Início do programa
