@@ -2,4 +2,4 @@ requests
 Pillow
 colorama
 termcolor
-fake_useragent
+fake-useragent
