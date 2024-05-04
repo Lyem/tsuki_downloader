@@ -4,6 +4,7 @@ import math
 import logging
 import requests
 from PIL import Image
+from time import sleep
 from colorama import init
 from colors import bcolors
 from termcolor import cprint
@@ -69,49 +70,56 @@ def download_pages(chapters, ch, vol):
 
             page_number = 1
             for page_index, page in enumerate(pages):
-                try:
-                    for index, cdn in enumerate(cdns):
-                        response = r.get(f"{cdn}{page['url']}", stream=True, headers=headers)
-                        if response.status_code == 200:
-                            response.raw.decode_content = True
-                            img = Image.open(response.raw)
-                            icc = img.info.get('icc_profile')
-                            if img.mode in ("RGBA", "P"): img = img.convert("RGB")
-                            width, height = img.size
-                            if(height > 10000):
-                                top = 0
-                                left = 0
-                                slices = int(math.ceil(height / 5000))
-                                count = 1
-                                for slice in range(slices):
-                                    if count == slices:
-                                        bottom = height
-                                    else:
-                                        bottom = int(count * 5000)
+                status = 429
+                while (status == 429):
+                    try:
+                        for index, cdn in enumerate(cdns):
+                            response = r.get(f"{cdn}{page['url']}", stream=True, headers=headers)
+                            if response.status_code == 200:
+                                status = 200
+                                response.raw.decode_content = True
+                                img = Image.open(response.raw)
+                                icc = img.info.get('icc_profile')
+                                if img.mode in ("RGBA", "P"): img = img.convert("RGB")
+                                width, height = img.size
+                                if(height > 10000):
+                                    top = 0
+                                    left = 0
+                                    slices = int(math.ceil(height / 5000))
+                                    count = 1
+                                    for slice in range(slices):
+                                        if count == slices:
+                                            bottom = height
+                                        else:
+                                            bottom = int(count * 5000)
 
-                                    box = (left, top, width, bottom)
-                                    img_slice = img.crop(box)
-                                    top += 5000
-                                    img_slice.save(os.path.join('MangaDownloads', manga_name, f'{manga_name} [pt-br] - c{ch}{vol}{ch_title} [{groups}]', f"%03d.jpg" % page_number), quality=80, dpi=(72, 72), icc_profile=icc)
-                                    count += 1
+                                        box = (left, top, width, bottom)
+                                        img_slice = img.crop(box)
+                                        top += 5000
+                                        img_slice.save(os.path.join('MangaDownloads', manga_name, f'{manga_name} [pt-br] - c{ch}{vol}{ch_title} [{groups}]', f"%03d.jpg" % page_number), quality=80, dpi=(72, 72), icc_profile=icc)
+                                        count += 1
+                                        page_number += 1
+                                    cprint(f'{bcolors.OK}pagina {page_index + 1} baixada com sucesso{bcolors.END}')
+                                else:
+                                    img.save(os.path.join('MangaDownloads', manga_name, f'{manga_name} [pt-br] - c{ch}{vol}{ch_title} [{groups}]', f"%03d.jpg" % page_number), quality=80, dpi=(72, 72), icc_profile=icc)
+                                    cprint(f'{bcolors.OK}pagina {page_index + 1} baixada com sucesso{bcolors.END}')
                                     page_number += 1
-                                cprint(f'{bcolors.OK}pagina {page_index + 1} baixada com sucesso{bcolors.END}')
+                                break
                             else:
-                                img.save(os.path.join('MangaDownloads', manga_name, f'{manga_name} [pt-br] - c{ch}{vol}{ch_title} [{groups}]', f"%03d.jpg" % page_number), quality=80, dpi=(72, 72), icc_profile=icc)
-                                cprint(f'{bcolors.OK}pagina {page_index + 1} baixada com sucesso{bcolors.END}')
-                                page_number += 1
-                            break
-                        else:
-                            if len(cdns) == index + 1:
-                                cprint(f'{bcolors.FAIL}falha ao baixar pagina {page_index + 1} do cap {c["number"]}{bcolors.END}')
-                                logger.info(f'status da request: {response.status_code}')
-                                logger.info(f"falha ao baixar pagina {page_index + 1} do cap {c['number']} - {cdn}{page['url']}")
-                                page_number += 1
-                except Exception as e:
-                    cprint(f'{bcolors.FAIL}falha ao baixar pagina {page_index + 1} do cap {c["number"]}{bcolors.END}')
-                    logger.info(e)
-                    logger.info(f"falha ao baixar pagina {page_index + 1} do cap {c['number']} - {cdn}{page['url']}")
-                    page_number += 1
+                                if response.status_code == 429:
+                                    sleep(5)
+                                else:
+                                    if len(cdns) == index + 1:
+                                        status = response.status_code
+                                        cprint(f'{bcolors.FAIL}falha ao baixar pagina {page_index + 1} do cap {c["number"]}{bcolors.END}')
+                                        logger.info(f'status da request: {response.status_code}')
+                                        logger.info(f"falha ao baixar pagina {page_index + 1} do cap {c['number']} - {cdn}{page['url']}")
+                                        page_number += 1
+                    except Exception as e:
+                        cprint(f'{bcolors.FAIL}falha ao baixar pagina {page_index + 1} do cap {c["number"]}{bcolors.END}')
+                        logger.info(e)
+                        logger.info(f"falha ao baixar pagina {page_index + 1} do cap {c['number']} - {cdn}{page['url']}")
+                        page_number += 1
 
 # Início do programa
 if __name__ == "__main__":
