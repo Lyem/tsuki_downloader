@@ -1,6 +1,7 @@
 import os
 import re
 import math
+import json
 import logging
 import requests
 from PIL import Image
@@ -30,7 +31,20 @@ r.mount('https://', HTTPAdapter(max_retries=retries))
 base = 'https://tsuki-mangas.com'
 cdns = ['https://cdn.tsuki-mangas.com/tsuki','https://cdn2.tsuki-mangas.com']
 ua = UserAgent()
+cookies = {}
 headers = {'referer': f'{base}', 'user-agent': ua.random}
+
+cloudflare = r.get(base)
+
+start_index = cloudflare.text.find('<title>') + len('<title>')
+end_index = cloudflare.text.find('</title>', start_index)
+title = cloudflare.text[start_index:end_index]
+
+if title == 'Just a moment...':
+    cookie_string = str(input('cole o cookie cf_clearance da tsuki: '))
+    cookies = {'cf_clearance': cookie_string}
+    agent = str(input('cole o user agent do seu navegador: '))
+    headers = {'referer': f'{base}', 'user-agent': agent}
 
 # Função para baixar páginas do capítulo
 def download_pages(chapters, ch, vol):
@@ -49,7 +63,7 @@ def download_pages(chapters, ch, vol):
 
             version_id = c['versions'][version - 1]['id']
 
-            pages = r.get(f'{base}/api/v3/chapter/versions/{version_id}', headers=headers).json()
+            pages = r.get(f'{base}/api/v3/chapter/versions/{version_id}', headers=headers, cookies=cookies).json()
             logger.info(f'pages request: {pages}')
 
             manga_name = (pages['chapter']['manga']['title'][:20]) if len(pages['chapter']['manga']['title']) > 20 else pages['chapter']['manga']['title']
@@ -74,7 +88,7 @@ def download_pages(chapters, ch, vol):
                 while (status == 429):
                     try:
                         for index, cdn in enumerate(cdns):
-                            response = r.get(f"{cdn}{page['url']}", stream=True, headers=headers)
+                            response = r.get(f"{cdn}{page['url']}", stream=True, headers=headers, cookies=cookies)
                             if response.status_code == 200:
                                 status = 200
                                 response.raw.decode_content = True
@@ -126,11 +140,11 @@ if __name__ == "__main__":
     cprint(f"{bcolors.OKBLUE}Digite o id do manga: {bcolors.END}")
     id_manga = input()
 
-    data = r.get(f'{base}/api/v3/chapters?manga_id={id_manga}', headers=headers).json()
+    data = r.get(f'{base}/api/v3/chapters?manga_id={id_manga}', headers=headers, cookies=cookies).json()
 
     chapters = []
     for i in range(int(data['lastPage'])):
-        response = r.get(f'{base}/api/v3/chapters?manga_id={id_manga}&order=desc&page={i + 1}', headers=headers).json()
+        response = r.get(f'{base}/api/v3/chapters?manga_id={id_manga}&order=desc&page={i + 1}', headers=headers, cookies=cookies).json()
         chapters.extend(response['data'])
 
     for ch in chapters:
