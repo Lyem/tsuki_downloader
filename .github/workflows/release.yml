@@ -23,7 +23,7 @@ jobs:
           sudo apt-get update
           sudo apt install python3-dev python3-setuptools tcl libgirepository1.0-dev
       
-      - name: Install dependencies on ubuntu
+      - name: Install dependencies on macos
         if: ${{ matrix.config.os == 'macos-12'}}
         run: |
           brew install gobject-introspection
