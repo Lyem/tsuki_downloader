@@ -3,3 +3,4 @@ Pillow
 colorama
 termcolor
 fake-useragent
+pywebview
