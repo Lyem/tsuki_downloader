@@ -3,6 +3,7 @@ import re
 import math
 import json
 import logging
+import webview
 import requests
 from PIL import Image
 from time import sleep
@@ -32,19 +33,42 @@ base = 'https://tsuki-mangas.com'
 cdns = ['https://cdn.tsuki-mangas.com/tsuki','https://cdn2.tsuki-mangas.com']
 ua = UserAgent()
 cookies = {}
-headers = {'referer': f'{base}', 'user-agent': ua.random}
+user = ua.random
+headers = {'referer': f'{base}', 'user-agent': user}
 
+# Bypass cloudflare
 cloudflare = r.get(base)
-
 start_index = cloudflare.text.find('<title>') + len('<title>')
 end_index = cloudflare.text.find('</title>', start_index)
 title = cloudflare.text[start_index:end_index]
 
 if title == 'Just a moment...':
-    cookie_string = str(input('cole o cookie cf_clearance da tsuki: '))
-    cookies = {'cf_clearance': cookie_string}
-    agent = str(input('cole o user agent do seu navegador: '))
-    headers = {'referer': f'{base}', 'user-agent': agent}
+    def read_cookies(window):
+        agent = window.evaluate_js(r"""
+                // Return user agent
+                navigator.userAgent;
+                """
+            )
+        global headers
+        headers = {'referer': f'{base}', 'user-agent': agent}
+        while(True):
+            html = window.get_elements('html')
+            html = str(html)
+            start_index = html.find('<title>') + len('<title>')
+            end_index = html.find('</title>', start_index)
+            title = html[start_index:end_index]
+            if title == 'Just a moment...':
+                sleep(1)
+            else:
+                break
+        cookiesW = window.get_cookies()
+        for cookie in cookiesW:
+            if 'cf_clearance' in cookie:
+                global cookies
+                cookies = {'cf_clearance': cookie['cf_clearance'].value}
+        window.destroy()
+    window = webview.create_window('Cloudflare ByPass', base)
+    webview.start(read_cookies, window, gui='edgechromium', http_server=True, http_port=52528, private_mode=False)
 
 # Função para baixar páginas do capítulo
 def download_pages(chapters, ch, vol):
