@@ -5,3 +5,5 @@ termcolor
 fake-useragent
 pywebview
 pywebview[qt]
+pycairo
+PyGObject
