@@ -4,4 +4,4 @@ colorama
 termcolor
 fake-useragent
 pywebview
-"pywebview[qt]"
+pywebview[qt]
