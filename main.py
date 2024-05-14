@@ -42,7 +42,7 @@ start_index = cloudflare.text.find('<title>') + len('<title>')
 end_index = cloudflare.text.find('</title>', start_index)
 title = cloudflare.text[start_index:end_index]
 
-if title == 'Just a moment...':
+if title != 'Início - Tsuki mangás':
     def read_cookies(window):
         agent = window.evaluate_js(r"""
                 // Return user agent
@@ -57,7 +57,7 @@ if title == 'Just a moment...':
             start_index = html.find('<title>') + len('<title>')
             end_index = html.find('</title>', start_index)
             title = html[start_index:end_index]
-            if title == 'Just a moment...':
+            if title != 'Início - Tsuki mangás':
                 sleep(1)
             else:
                 break
