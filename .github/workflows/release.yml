@@ -47,7 +47,7 @@ jobs:
           echo "PYTHONPATH={path}/src" >> $GITHUB_ENV
 
       - name: Build with pyinstaller for ${{ matrix.config.os }}
-        run: pyinstaller --onefile ./main.py --collect-all fake_useragent
+        run: pyinstaller --onefile ./main.py --collect-all fake_useragent --collect-all webview
 
       - name: Rename builded app
         run: mv ./dist ./dist-${{ matrix.config.os }}
