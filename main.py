@@ -164,7 +164,11 @@ if __name__ == "__main__":
     cprint(f"{bcolors.OKBLUE}Digite o id do manga: {bcolors.END}")
     id_manga = input()
 
-    data = r.get(f'{base}/api/v3/chapters?manga_id={id_manga}', headers=headers, cookies=cookies).json()
+    data = r.get(f'{base}/api/v3/chapters?manga_id={id_manga}', headers=headers, cookies=cookies)
+    logger.info(data.status_code)
+    logger.info(data.content)
+    data = data.json()
+    
 
     chapters = []
     for i in range(int(data['lastPage'])):
