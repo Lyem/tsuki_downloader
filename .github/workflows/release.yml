@@ -50,7 +50,6 @@ jobs:
         if: ${{ matrix.config.os == 'windows-2019'}}
         run: | 
           python ./unzip.py
-          ls
           pyinstaller --onefile ./main.py --collect-all fake_useragent --add-data "./chrome-win;./chrome-win"
 
       - name: Rename builded app
