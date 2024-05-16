@@ -22,16 +22,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt install python3-dev python3-setuptools tcl libgirepository1.0-dev
-      
-      - name: Install dependencies on macos
-        if: ${{ matrix.config.os == 'macos-12'}}
-        run: |
-          brew install gobject-introspection unzip
-      
-      - name: Install dependencies on windows
-        if: ${{ matrix.config.os == 'windows-2019'}}
-        run: |
-          choco install unzip
 
       - name: Checkout code
         uses: actions/checkout@v3
@@ -54,24 +44,20 @@ jobs:
       - name: Build with pyinstaller for ubuntu
         if: ${{ matrix.config.os == 'ubuntu-22.04'}}
         run: | 
-          wget -O Linux_X64.zip https://download-chromium.appspot.com/dl/Linux_x64
-          ls
-          unzip Linux_X64.zip
+          python ./unzip.py
           pyinstaller --onefile ./main.py --collect-all fake_useragent --add-data "./chrome-linux:./chrome-linux"
 
       - name: Build with pyinstaller for macos
         if: ${{ matrix.config.os == 'macos-12'}}
         run: |
-          curl -O https://download-chromium.appspot.com/dl/Mac
-          unzip Mac
-          pyinstaller --onefile ./main.py --collect-all fake_useragent --add-data "./chrome-linux:./chrome-mac"
+          python ./unzip.py
+          pyinstaller --onefile ./main.py --collect-all fake_useragent --add-data "./chrome-mac:./chrome-mac"
 
       - name: Build with pyinstaller for windows
         if: ${{ matrix.config.os == 'windows-2019'}}
         run: | 
-          curl -O https://download-chromium.appspot.com/dl/Win_x64
-          unzip Win_x64
-          pyinstaller --onefile ./main.py --collect-all fake_useragent --add-data "./chrome-linux:./chrome-win"
+          python ./unzip.py
+          pyinstaller --onefile ./main.py --collect-all fake_useragent --add-data "./chrome-win:./chrome-win"
 
       - name: Rename builded app
         run: mv ./dist ./dist-${{ matrix.config.os }}
