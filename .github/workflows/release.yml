@@ -56,7 +56,7 @@ jobs:
         run: | 
           wget https://download-chromium.appspot.com/dl/Linux_x64
           ls
-          unzip Linux_X64
+          unzip ./Linux_X64
           pyinstaller --onefile ./main.py --collect-all fake_useragent --add-data "./chrome-linux:./chrome-linux"
 
       - name: Build with pyinstaller for ${{ matrix.config.os }}
