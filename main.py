@@ -1,11 +1,14 @@
 import os
 import re
+import sys
 import math
 import logging
 import requests
+import platform
 import nodriver as uc
 from PIL import Image
 from time import sleep
+from pathlib import Path
 from colorama import init
 from colors import bcolors
 from termcolor import cprint
@@ -35,6 +38,17 @@ user = ua.random
 headers = {'referer': f'{base}', 'user-agent': user}
 
 # Bypass cloudflare
+def base_path():
+    if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+        return Path(sys._MEIPASS)
+    return Path('.')
+system = platform.system()
+if system == 'Linux':
+    chrome_exec = Path('chrome-linux/chrome')
+elif system == 'Windowns':
+    chrome_exec = Path('chrome-win/chrome.exe')
+else:
+    chrome_exec = Path('chrome-mac/MacOS/Chromium')
 cloudflare = r.get(base)
 start_index = cloudflare.text.find('<title>') + len('<title>')
 end_index = cloudflare.text.find('</title>', start_index)
@@ -50,7 +64,7 @@ if title != 'Início - Tsuki mangás':
                 '--disable-extensions', 
                 '--disable-popup-blocking'
             ],
-            sandbox=False
+            browser_executable_path=str(base_path() / chrome_exec)
         )
         page = await browser.get(base)
         agent = await page.evaluate('navigator.userAgent')
