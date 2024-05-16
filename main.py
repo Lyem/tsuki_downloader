@@ -45,10 +45,9 @@ def base_path():
 system = platform.system()
 if system == 'Linux':
     chrome_exec = Path('chrome-linux/chrome')
-elif system == 'Windowns':
-    chrome_exec = Path('chrome-win/chrome.exe')
 else:
-    chrome_exec = Path('chrome-mac/MacOS/Chromium')
+    chrome_exec = Path('chrome-win/chrome.exe')
+
 cloudflare = r.get(base)
 start_index = cloudflare.text.find('<title>') + len('<title>')
 end_index = cloudflare.text.find('</title>', start_index)

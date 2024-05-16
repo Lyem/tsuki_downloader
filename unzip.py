@@ -7,13 +7,9 @@ system = platform.system()
 if system == 'Linux':
     chrome = requests.get('https://download-chromium.appspot.com/dl/Linux_x64')
     chrome_zip = 'Linux_x64'
-elif system == 'Windowns':
+else:
     chrome = requests.get('https://download-chromium.appspot.com/dl/Win_x64')
     chrome_zip = 'Win_x64'
-else:
-    chrome = requests.get('https://download-chromium.appspot.com/dl/Mac')
-    chrome_zip = 'Mac'
-
 
 with open(os.path.join('./', chrome_zip), 'wb') as archive:
     archive.write(chrome.content)

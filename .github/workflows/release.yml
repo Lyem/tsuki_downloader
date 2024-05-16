@@ -14,7 +14,6 @@ jobs:
       matrix:
         config:
           - os: ubuntu-22.04
-          - os: macos-12
           - os: windows-2019
     steps:
       - name: Install dependencies on ubuntu
@@ -46,12 +45,6 @@ jobs:
         run: | 
           python ./unzip.py
           pyinstaller --onefile ./main.py --collect-all fake_useragent --add-data "./chrome-linux:./chrome-linux"
-
-      - name: Build with pyinstaller for macos
-        if: ${{ matrix.config.os == 'macos-12'}}
-        run: |
-          python ./unzip.py
-          pyinstaller --onefile ./main.py --collect-all fake_useragent --add-data "./chrome-mac:./chrome-mac"
 
       - name: Build with pyinstaller for windows
         if: ${{ matrix.config.os == 'windows-2019'}}
@@ -85,9 +78,6 @@ jobs:
       - name: Zip file ubuntu
         run: zip -r helper_ubuntu.zip dist-ubuntu-*
 
-      - name: Zip file macos
-        run: zip -r helper_macos.zip dist-macos-*
-
       - name: Create Release
         id: create_release
         uses: softprops/action-gh-release@v1
@@ -100,4 +90,3 @@ jobs:
           files: |
             helper_windows.zip
             helper_ubuntu.zip
-            helper_macos.zip
