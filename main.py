@@ -1,10 +1,9 @@
 import os
 import re
 import math
-import json
 import logging
-import webview
 import requests
+import nodriver as uc
 from PIL import Image
 from time import sleep
 from colorama import init
@@ -32,7 +31,6 @@ r.mount('https://', HTTPAdapter(max_retries=retries))
 base = 'https://tsuki-mangas.com'
 cdns = ['https://cdn.tsuki-mangas.com/tsuki','https://cdn2.tsuki-mangas.com']
 ua = UserAgent()
-cookies = {}
 user = ua.random
 headers = {'referer': f'{base}', 'user-agent': user}
 
@@ -43,16 +41,21 @@ end_index = cloudflare.text.find('</title>', start_index)
 title = cloudflare.text[start_index:end_index]
 
 if title != 'Início - Tsuki mangás':
-    def read_cookies(window):
-        agent = window.evaluate_js(r"""
-                // Return user agent
-                navigator.userAgent;
-                """
-            )
+    async def get_cloudflare_cookie():
         global headers
+        browser = await uc.start(
+            browser_args=[
+                '--window-size=600,600', 
+                f'--app={base}',
+                '--disable-extensions', 
+                '--disable-popup-blocking'
+            ]
+        )
+        page = await browser.get(base)
+        agent = await page.evaluate('navigator.userAgent')
         headers = {'referer': f'{base}', 'user-agent': agent}
         while(True):
-            html = window.get_elements('html')
+            html = await page.get_content()
             html = str(html)
             start_index = html.find('<title>') + len('<title>')
             end_index = html.find('</title>', start_index)
@@ -61,14 +64,11 @@ if title != 'Início - Tsuki mangás':
                 sleep(1)
             else:
                 break
-        cookiesW = window.get_cookies()
-        for cookie in cookiesW:
-            if 'cf_clearance' in cookie:
-                global cookies
-                cookies = {'cf_clearance': cookie['cf_clearance'].value}
-        window.destroy()
-    window = webview.create_window('Cloudflare ByPass', base)
-    webview.start(read_cookies, window, gui='edgechromium', http_server=True, http_port=52528, private_mode=False)
+        requests_style_cookies = await browser.cookies.get_all(requests_cookie_format=True)
+        for cookie in requests_style_cookies:
+            r.cookies.set_cookie(cookie)
+        browser.stop()
+    uc.loop().run_until_complete(get_cloudflare_cookie())
 
 # Função para baixar páginas do capítulo
 def download_pages(chapters, ch, vol):
@@ -87,7 +87,7 @@ def download_pages(chapters, ch, vol):
 
             version_id = c['versions'][version - 1]['id']
 
-            pages = r.get(f'{base}/api/v3/chapter/versions/{version_id}', headers=headers, cookies=cookies).json()
+            pages = r.get(f'{base}/api/v3/chapter/versions/{version_id}', headers=headers).json()
             logger.info(f'pages request: {pages}')
 
             manga_name = (pages['chapter']['manga']['title'][:20]) if len(pages['chapter']['manga']['title']) > 20 else pages['chapter']['manga']['title']
@@ -112,7 +112,7 @@ def download_pages(chapters, ch, vol):
                 while (status == 429):
                     try:
                         for index, cdn in enumerate(cdns):
-                            response = r.get(f"{cdn}{page['url']}", stream=True, headers=headers, cookies=cookies)
+                            response = r.get(f"{cdn}{page['url']}", stream=True, headers=headers)
                             if response.status_code == 200:
                                 status = 200
                                 response.raw.decode_content = True
@@ -164,7 +164,7 @@ if __name__ == "__main__":
     cprint(f"{bcolors.OKBLUE}Digite o id do manga: {bcolors.END}")
     id_manga = input()
 
-    data = r.get(f'{base}/api/v3/chapters?manga_id={id_manga}', headers=headers, cookies=cookies)
+    data = r.get(f'{base}/api/v3/chapters?manga_id={id_manga}', headers=headers)
     logger.info(data.status_code)
     logger.info(data.content)
     data = data.json()
@@ -172,7 +172,7 @@ if __name__ == "__main__":
 
     chapters = []
     for i in range(int(data['lastPage'])):
-        response = r.get(f'{base}/api/v3/chapters?manga_id={id_manga}&order=desc&page={i + 1}', headers=headers, cookies=cookies).json()
+        response = r.get(f'{base}/api/v3/chapters?manga_id={id_manga}&order=desc&page={i + 1}', headers=headers).json()
         chapters.extend(response['data'])
 
     for ch in chapters:

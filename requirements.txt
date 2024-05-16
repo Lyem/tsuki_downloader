@@ -3,6 +3,5 @@ Pillow
 colorama
 termcolor
 fake-useragent
-pywebview
-pycairo
-PyGObject
+nodriver
+undetected-chromedriver
