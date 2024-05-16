@@ -51,22 +51,22 @@ jobs:
         run: |
           echo "PYTHONPATH={path}/src" >> $GITHUB_ENV
 
-      - name: Build with pyinstaller for ${{ matrix.config.os }}
+      - name: Build with pyinstaller for ubuntu
         if: ${{ matrix.config.os == 'ubuntu-22.04'}}
         run: | 
-          wget https://download-chromium.appspot.com/dl/Linux_x64
+          wget -O Linux_X64.zip https://download-chromium.appspot.com/dl/Linux_x64
           ls
-          unzip ./Linux_X64
+          unzip Linux_X64.zip
           pyinstaller --onefile ./main.py --collect-all fake_useragent --add-data "./chrome-linux:./chrome-linux"
 
-      - name: Build with pyinstaller for ${{ matrix.config.os }}
+      - name: Build with pyinstaller for macos
         if: ${{ matrix.config.os == 'macos-12'}}
         run: |
           curl -O https://download-chromium.appspot.com/dl/Mac
           unzip Mac
           pyinstaller --onefile ./main.py --collect-all fake_useragent --add-data "./chrome-linux:./chrome-mac"
 
-      - name: Build with pyinstaller for ${{ matrix.config.os }}
+      - name: Build with pyinstaller for windows
         if: ${{ matrix.config.os == 'windows-2019'}}
         run: | 
           curl -O https://download-chromium.appspot.com/dl/Win_x64
