@@ -1,3 +1,6 @@
 MangaDownloads
 __pycache__
 app.log
+build
+dist
+*.spec
