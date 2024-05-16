@@ -49,7 +49,8 @@ if title != 'Início - Tsuki mangás':
                 f'--app={base}',
                 '--disable-extensions', 
                 '--disable-popup-blocking'
-            ]
+            ],
+            sandbox=False
         )
         page = await browser.get(base)
         agent = await page.evaluate('navigator.userAgent')
