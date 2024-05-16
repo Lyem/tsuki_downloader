@@ -44,9 +44,12 @@ def base_path():
     return Path('.')
 system = platform.system()
 if system == 'Linux':
-    chrome_exec = Path('chrome-linux/chrome')
+    chrome_exec = str(base_path() / Path('chrome-linux/chrome'))
 else:
-    chrome_exec = Path('chrome-win/chrome.exe')
+    chrome_exec = str(base_path() / Path('chrome-win/chrome.exe'))
+
+if not os.path.exists(chrome_exec):
+    chrome_exec = None
 
 cloudflare = r.get(base)
 start_index = cloudflare.text.find('<title>') + len('<title>')
@@ -63,7 +66,7 @@ if title != 'Início - Tsuki mangás':
                 '--disable-extensions', 
                 '--disable-popup-blocking'
             ],
-            browser_executable_path=str(base_path() / chrome_exec)
+            browser_executable_path=chrome_exec
         )
         page = await browser.get(base)
         agent = await page.evaluate('navigator.userAgent')
